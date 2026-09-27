@@ -1,0 +1,13 @@
+game
+*.o
+*.out
+
+build/
+CMakeFiles/
+cmake-build-*/
+
+.vscode/
+.idea/
+
+*.swp
+.DS_Store
