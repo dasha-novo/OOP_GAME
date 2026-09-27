@@ -1,35 +1,55 @@
-game : main.o game.o game_window.o cell.o game_field.o robot.o player_robot.o enemy_robot.o healer_robot.o renderer.o
-	g++ main.o game.o game_window.o cell.o game_field.o robot.o player_robot.o enemy_robot.o healer_robot.o renderer.o -lsfml-graphics -lsfml-window -lsfml-system -o game
+CXX = g++
 
-main.o : main.cpp game.h
-	g++ -c main.cpp -o main.o
+CXXFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -Iinclude
 
-game.o : game.cpp game.h game_window.h game_field.h renderer.h player_robot.h enemy_robot.h healer_robot.h game_state.h
-	g++ -c game.cpp -o game.o
+LDLIBS = -lsfml-graphics -lsfml-window -lsfml-system
 
-game_window.o : game_window.cpp game_window.h
-	g++ -c game_window.cpp -o game_window.o
+OBJECTS = main.o game.o game_window.o cell.o game_field.o \
+          robot.o player_robot.o enemy_robot.o healer_robot.o renderer.o
 
-cell.o : cell.cpp cell.h
-	g++ -c cell.cpp -o cell.o
+game : $(OBJECTS)
+	$(CXX) $(OBJECTS) $(LDLIBS) -o $@
 
-game_field.o : game_field.cpp game_field.h cell.h robot.h
-	g++ -c game_field.cpp -o game_field.o
+main.o : src/main.cpp include/game.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-robot.o : robot.cpp robot.h
-	g++ -c robot.cpp -o robot.o
+game.o : src/game.cpp include/game.h include/game_window.h \
+         include/game_field.h include/renderer.h \
+         include/player_robot.h include/enemy_robot.h \
+         include/healer_robot.h include/game_state.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-player_robot.o : player_robot.cpp player_robot.h robot.h
-	g++ -c player_robot.cpp -o player_robot.o
+game_window.o : src/game_window.cpp include/game_window.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-enemy_robot.o : enemy_robot.cpp enemy_robot.h robot.h
-	g++ -c enemy_robot.cpp -o enemy_robot.o
+cell.o : src/cell.cpp include/cell.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-healer_robot.o : healer_robot.cpp healer_robot.h robot.h
-	g++ -c healer_robot.cpp -o healer_robot.o
+game_field.o : src/game_field.cpp include/game_field.h \
+               include/cell.h include/robot.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-renderer.o : renderer.cpp renderer.h game_field.h game_window.h game_state.h robot.h
-	g++ -c renderer.cpp -o renderer.o
+robot.o : src/robot.cpp include/robot.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+player_robot.o : src/player_robot.cpp include/player_robot.h \
+                 include/robot.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+enemy_robot.o : src/enemy_robot.cpp include/enemy_robot.h \
+                include/robot.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+healer_robot.o : src/healer_robot.cpp include/healer_robot.h \
+                 include/robot.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+renderer.o : src/renderer.cpp include/renderer.h \
+             include/game_field.h include/game_window.h \
+             include/game_state.h include/robot.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean :
-	rm -f *.o game
+	rm -f $(OBJECTS) game
+
+.PHONY: clean

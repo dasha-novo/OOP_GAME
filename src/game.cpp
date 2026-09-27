@@ -103,6 +103,8 @@ void Game::HandleEvents() {
         case sf::Keyboard::Down:
           player_action_result = field_.MoveRobot(player_robot_, 0, 1,  moved_cells);
           break;
+        default:
+          break;
       }
 
       if (moved_cells > 0 && player_robot_.IsAlive()) {
