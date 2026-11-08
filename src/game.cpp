@@ -132,6 +132,13 @@ void Game::HandleEvents() {
       continue;
     }
 
+    if (game_state_ == GameState::kChoosingDisplayMode) {
+      if (event.type == sf::Event::KeyPressed) {
+          ChooseDisplayMode(event.key.code);
+      }
+      continue;
+    }
+
     if (game_state_ == GameState::kChoosingRankAbility) {
       if (event.type == sf::Event::KeyPressed) {
           ChooseRankAbility(event.key.code);
@@ -227,6 +234,10 @@ void Game::HandleEvents() {
 
       case sf::Keyboard::R:
         StartTargetAbility(AbilityType::kLongrangeAttack);
+        break;
+
+      case sf::Keyboard::L:
+        game_state_ = GameState::kChoosingDisplayMode;
         break;
 
       default:
@@ -494,4 +505,33 @@ bool Game::ChooseRankAbility(sf::Keyboard::Key key) {
     game_state_ = GameState::kPlaying;
 
     return true;
+}
+
+void Game::ChooseDisplayMode(sf::Keyboard::Key key) {
+    switch (key) {
+        case sf::Keyboard::Num1:
+            renderer_.SetDisplayMode(DisplayMode::kStandard);
+            break;
+
+        case sf::Keyboard::Num2:
+            renderer_.SetDisplayMode(DisplayMode::kEnemies);
+            break;
+
+        case sf::Keyboard::Num3:
+            renderer_.SetDisplayMode(DisplayMode::kImpassableCells);
+            break;
+
+        case sf::Keyboard::Num4:
+            renderer_.SetDisplayMode(DisplayMode::kStatusCells);
+            break;
+
+        case sf::Keyboard::Escape:
+            game_state_ = GameState::kPlaying;
+            return;
+
+        default:
+            return;
+    }
+
+    game_state_ = GameState::kPlaying;
 }

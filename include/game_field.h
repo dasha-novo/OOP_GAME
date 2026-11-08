@@ -29,6 +29,7 @@ class GameField {
     bool GetRobotPosition(const Robot& robot, int& x, int& y) const;
     Robot* GetRobotForChange(int x, int y);
     bool RemoveDeadRobot(int x, int y);
+    bool HasCellStatuses(int x, int y) const;
 
     static constexpr int kMinFieldSize = 3;
     static constexpr int kMaxFieldSize = 100;

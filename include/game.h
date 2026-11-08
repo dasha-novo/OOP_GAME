@@ -56,7 +56,7 @@ class Game {
     bool ChooseInitialAbility(sf::Keyboard::Key key);
     void UpdatePlayerExperience();
     bool ChooseRankAbility(sf::Keyboard::Key key);
-
+    void ChooseDisplayMode(sf::Keyboard::Key key);
 };
 
 #endif

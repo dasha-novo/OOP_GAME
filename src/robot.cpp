@@ -280,3 +280,7 @@ void Robot::UpdateStatuses() {
         } else ++i;
     }
 }
+
+void Robot::Die() {
+    SetHealth(0);
+}

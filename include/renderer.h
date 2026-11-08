@@ -5,6 +5,7 @@
 #include <string>
 
 #include "game_state.h"
+#include "status_type.h"
 
 class GameField;
 class GameWindow;
@@ -20,8 +21,8 @@ class Renderer {
     void ShowAreaEffect(int center_x, int center_y, int radius);
     void ShowPlayerMovement(int start_x, int start_y, int delta_x, int delta_y, int moved_cells);
     bool IsPlayerMoveActive() const;
-
-bool IsPlayerMovementActive() const;
+    bool IsPlayerMovementActive() const;
+    void SetDisplayMode(DisplayMode mode);
           
   private:
     int cell_size_;
@@ -32,6 +33,11 @@ bool IsPlayerMovementActive() const;
     sf::Texture enemy_texture_;
     sf::Texture healer_texture_;
     bool textures_loaded_;
+    sf::Texture slowdown_status_texture_;
+    sf::Texture overload_status_texture_;
+    sf::Texture burn_status_texture_;
+    sf::Texture shield_status_texture_;
+    bool status_textures_loaded_;
 
     sf::Texture longrange_effect_texture_;
     sf::Texture area_effect_texture_;
@@ -51,13 +57,23 @@ bool IsPlayerMovementActive() const;
     int player_move_delta_y_ = 0;
     int player_move_cells_ = 0;
 
+    sf::Texture backlight_texture_;
+    bool backlight_loaded_ = false;
+    DisplayMode display_mode_ = DisplayMode::kStandard;
+
     sf::Clock player_move_time_;
     sf::Clock longrange_effect_time_;
     sf::Clock area_effect_time_;
 
+    void DrawPlayerStatuses(const GameField& field, const Robot& player, GameWindow& window) const;
+    void DrawStatusIcon(StatusType type, int value, float x, float y, GameWindow& window) const;
+    bool IsCellHighlighted(const GameField& field, int x, int y) const;
+
     static constexpr float kAreaEffectTime = 0.25f;
     static constexpr float kLongrangeEffectTime = 0.25f;
     static constexpr float kPlayerCellMoveTime = 0.12f;
-};
+    static constexpr float kStatusIconSize = 32.0f;
+    static constexpr float kStatusIconGap = 8.0f;
+  };
 
 #endif

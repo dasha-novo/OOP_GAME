@@ -57,7 +57,7 @@ void GameField::GenerateCells() {
       for (int i=0; i < count_status; ++i) {
         int random_type = status_type_random_value(rng_);
         if (random_type == 0) {
-          cells_[y][x].AddStatus(StatusType::kSlowdown, 5);
+          cells_[y][x].AddStatus(StatusType::kSlowdown, 1);
         } else if (random_type == 1) {
           cells_[y][x].AddStatus(StatusType::kOverload, 1);
         } else if (random_type == 2) {
@@ -202,7 +202,7 @@ MoveResult GameField::MoveRobot(Robot& robot, int delta_x, int delta_y, int& mov
             if (FindRobotPosition(robot, current_x, current_y)) {
                 if (GetSlowdown(current_x, current_y) == 3 && is_player) {
                     robot.SetSpeed(0);
-                    robot.TakeDamage(robot.GetHealth());
+                    robot.Die();
                     cells_[current_y][current_x].RemoveRobot();
                     return result;
                 }
@@ -227,7 +227,7 @@ MoveResult GameField::MoveRobot(Robot& robot, int delta_x, int delta_y, int& mov
             robot.SetSpeed(new_speed);
 
             if (robot.GetSpeed() == 0 && is_player) {
-                robot.TakeDamage(robot.GetHealth());
+                robot.Die();
                 cells_[current_y][current_x].RemoveRobot();
             }
         }
@@ -287,4 +287,12 @@ void GameField::ApplyCellStatus(Robot& robot, Cell& cell) {
     if (!robot.IsAlive()) {
         cell.RemoveRobot();
     }
+}
+
+bool GameField::HasCellStatuses(int x, int y) const {
+    if (x < 0 || x >= width_ || y < 0 || y >= height_) {
+        return false;
+    }
+
+    return cells_[y][x].HasStatuses();
 }

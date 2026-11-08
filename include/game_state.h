@@ -5,8 +5,16 @@ enum class GameState {
   kChoosingAbility,
   kPlaying,
   kChoosingRankAbility,
+  kChoosingDisplayMode,
   kVictory,
   kGameOver
+};
+
+enum class DisplayMode {
+  kStandard,
+  kEnemies,
+  kImpassableCells,
+  kStatusCells
 };
 
 #endif

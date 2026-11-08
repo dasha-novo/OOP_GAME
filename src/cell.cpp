@@ -36,6 +36,10 @@ void Cell::AddStatus(StatusType type, int amount) {
     statuses_.push_back(CellStatus{type, amount});
 }
 
+bool Cell::HasStatuses() const {
+    return !statuses_.empty();
+}
+
 bool Cell::TakeRandomStatus(std::mt19937& rng, CellStatus& result) {
     if (statuses_.empty()) return false;
 

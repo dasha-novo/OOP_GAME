@@ -24,6 +24,7 @@ class Cell {
     int GetSlowdown() const;
     void AddStatus(StatusType type, int amount);
     bool TakeRandomStatus(std::mt19937& rng, CellStatus& result);
+    bool HasStatuses() const;
 
   private:
     bool is_passable_;

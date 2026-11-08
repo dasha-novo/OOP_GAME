@@ -56,6 +56,7 @@ class Robot {
   bool TryBlockMovement();
   bool TryBlockAbility(AbilityType type);
   void UpdateStatuses();
+  void Die();
 
   private:
   std::vector<std::unique_ptr<Ability>> abilities_;
@@ -83,7 +84,6 @@ class Robot {
 
   void SetHealth(int health);
   void LevelUp();
-
   static int ControlValue(int value, int min, int max);
 };
 

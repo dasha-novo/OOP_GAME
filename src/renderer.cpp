@@ -8,7 +8,8 @@
 #include "game_field.h"
 #include "game_window.h"  
 
-Renderer::Renderer(int cell_size) : cell_size_(cell_size), font_loaded_(false) {
+Renderer::Renderer(int cell_size) : cell_size_(cell_size), font_loaded_(false),
+                                    status_textures_loaded_(false) {
             font_loaded_ = font_.loadFromFile("assets/GoodNewsSHA.otf");
 
             if (!font_loaded_) {
@@ -18,7 +19,16 @@ Renderer::Renderer(int cell_size) : cell_size_(cell_size), font_loaded_(false) {
             bool player_loaded = player_texture_.loadFromFile("assets/player_robot.png");
             bool enemy_loaded = enemy_texture_.loadFromFile("assets/enemy_robot.png");
             bool healer_loaded = healer_texture_.loadFromFile("assets/healer_robot.png");
-          
+            bool slowdown_status_loaded = slowdown_status_texture_.loadFromFile("assets/slowdown_status.png");
+            bool overload_status_loaded = overload_status_texture_.loadFromFile("assets/overload_status.png");
+            bool burn_status_loaded = burn_status_texture_.loadFromFile("assets/burn_status.png");
+            bool shield_status_loaded = shield_status_texture_.loadFromFile("assets/shield_status.png");
+            status_textures_loaded_ = slowdown_status_loaded && overload_status_loaded && burn_status_loaded && shield_status_loaded;
+
+            if (!status_textures_loaded_) {
+                std::cerr << "Status texture loading error.\n";
+            }
+
             longrange_effect_loaded_ = longrange_effect_texture_.loadFromFile("assets/longrange_attack.png");
             area_effect_loaded_ = area_effect_texture_.loadFromFile("assets/area_attack.png");
 
@@ -32,8 +42,15 @@ Renderer::Renderer(int cell_size) : cell_size_(cell_size), font_loaded_(false) {
 
             textures_loaded_ = player_loaded && enemy_loaded && healer_loaded;
           
-            if (!textures_loaded_) std::cerr << "Texture loading error.\n";
-          
+            if (!textures_loaded_) {
+                std::cerr << "Texture loading error.\n";
+            }
+
+            backlight_loaded_ = backlight_texture_.loadFromFile("assets/backlight.png");
+
+            if (!backlight_loaded_) {
+                std::cerr << "Backlight texture loading error.\n";
+            }
         }
 
 void Renderer::Render(const GameField& field, GameWindow& window, GameState game_state, const Robot& player_for_panel, const std::string& ability_message) {
@@ -94,6 +111,21 @@ void Renderer::Render(const GameField& field, GameWindow& window, GameState game
           cell.setOutlineColor(sf::Color::Black);
 
           window.Draw(cell);
+
+          if (backlight_loaded_ && IsCellHighlighted(field, x, y)) {
+            sf::Sprite backlight;
+            backlight.setTexture(backlight_texture_);
+            sf::FloatRect bounds = backlight.getLocalBounds();
+
+            if (bounds.width > 0.0f && bounds.height > 0.0f) {
+                float scale_x = static_cast<float>(cell_size_) / bounds.width;
+                float scale_y = static_cast<float>(cell_size_) / bounds.height;
+                backlight.setScale(scale_x, scale_y);
+            }
+
+            backlight.setPosition(x * cell_size_, y * cell_size_);
+            window.Draw(backlight);
+          }
         
           const Robot* current_robot = field.GetRobotPtr(x, y);
 
@@ -167,7 +199,7 @@ void Renderer::Render(const GameField& field, GameWindow& window, GameState game
             "    Speed: " + std::to_string(player_robot->GetSpeed());
 
         status_text.setString(text);
-        status_text.setPosition(120.0f, 10.0f);
+        status_text.setPosition(10.0f, 10.0f);
         window.Draw(status_text);
     }
 
@@ -232,6 +264,8 @@ void Renderer::Render(const GameField& field, GameWindow& window, GameState game
         }
     }
 
+    DrawPlayerStatuses(field, player_for_panel, window);
+
     if (font_loaded_) {
         const float panel_height = 100.0f;
         const float panel_y = field.GetHeight() * cell_size_;
@@ -258,6 +292,8 @@ void Renderer::Render(const GameField& field, GameWindow& window, GameState game
         if (game_state == GameState::kChoosingAbility) {
             ability_text_value = "Choose starting ability:\n" "[H] Heal   " "[T] Teleport   "
                                     "[A] Area attack   " "[R] Long-range attack";
+        } else if (game_state == GameState::kChoosingDisplayMode) {
+            ability_text_value = "Display mode:\n" "[1] Standard   [2] Enemies[3]   Impassable cells   [4] Status cells";
         } else {
             ability_text_value = "Abilities:\n";
 
@@ -282,7 +318,6 @@ void Renderer::Render(const GameField& field, GameWindow& window, GameState game
         window.Draw(ability_text);
 
         sf::Text rank_text;
-
         rank_text.setFont(font_);
         rank_text.setCharacterSize(12);
         rank_text.setFillColor(sf::Color::White);
@@ -295,6 +330,18 @@ void Renderer::Render(const GameField& field, GameWindow& window, GameState game
 
         rank_text.setPosition(8.0f, panel_y + 58.0f);
         window.Draw(rank_text);
+
+        sf::Text display_mode_hint;
+        display_mode_hint.setFont(font_);
+        display_mode_hint.setCharacterSize(12);
+        display_mode_hint.setFillColor(sf::Color::White);
+        display_mode_hint.setOutlineThickness(1.0f);
+        display_mode_hint.setOutlineColor(sf::Color::Black);
+        display_mode_hint.setString("[L] Display mode");
+        sf::FloatRect hint_bounds = display_mode_hint.getLocalBounds();
+        const float hint_gap = 8.0f;
+        display_mode_hint.setPosition(panel_width - hint_bounds.width - hint_gap, panel_y + 58.0f);
+        window.Draw(display_mode_hint);
 
         if (!ability_message.empty()) {
             sf::Text error_text;
@@ -411,7 +458,8 @@ void Renderer::Render(const GameField& field, GameWindow& window, GameState game
         return;
     }
 
-    if (game_state == GameState::kPlaying || game_state == GameState::kChoosingAbility || !font_loaded_) {
+    if (game_state == GameState::kPlaying || game_state == GameState::kChoosingAbility 
+        || game_state == GameState::kChoosingDisplayMode || !font_loaded_) {
         return;
     }
 
@@ -484,3 +532,91 @@ bool Renderer::IsPlayerMovementActive() const {
     return player_move_time_.getElapsedTime().asSeconds() < total_time;
 }
 
+void Renderer::DrawPlayerStatuses(const GameField& field, const Robot& player, GameWindow& window) const {
+    const StatusType status_types[] = {StatusType::kSlowdown, StatusType::kOverload,
+                                        StatusType::kBurn, StatusType::kShield};
+
+    const float icon_x = static_cast<float>(field.GetWidth() * cell_size_) - kStatusIconSize - 12.0f;
+    float icon_y = 12.0f;
+
+    for (StatusType type : status_types) {
+        if (!player.HasStatus(type)) continue;
+
+        DrawStatusIcon(type, player.GetStatusValue(type), icon_x, icon_y, window);
+        icon_y += kStatusIconSize + kStatusIconGap;
+    }
+}
+
+void Renderer::DrawStatusIcon(StatusType type, int value, float x, float y, GameWindow& window) const {
+    const sf::Texture* texture = nullptr;
+
+    switch (type) {
+        case StatusType::kSlowdown:
+            texture = &slowdown_status_texture_;
+            break;
+
+        case StatusType::kOverload:
+            texture = &overload_status_texture_;
+            break;
+
+        case StatusType::kBurn:
+            texture = &burn_status_texture_;
+            break;
+
+        case StatusType::kShield:
+            texture = &shield_status_texture_;
+            break;
+    }
+
+    if (texture == nullptr) return;
+
+    sf::Sprite sprite;
+    sprite.setTexture(*texture);
+    sf::FloatRect bounds = sprite.getLocalBounds();
+
+    if (bounds.width <= 0.0f || bounds.height <= 0.0f) return;
+
+    float scale_x = kStatusIconSize / bounds.width;
+    float scale_y = kStatusIconSize / bounds.height;
+    sprite.setScale(scale_x, scale_y);
+    sprite.setPosition(x, y);
+    window.Draw(sprite);
+
+    if (!font_loaded_) return;
+
+    sf::Text value_text;
+    value_text.setFont(font_);
+    value_text.setCharacterSize(18);
+    value_text.setFillColor(sf::Color::White);
+    value_text.setOutlineThickness(1.0f);
+    value_text.setOutlineColor(sf::Color::Black);
+    value_text.setString(std::to_string(value));
+    value_text.setPosition(x - 40.0f, y + 7.0f);
+
+    window.Draw(value_text);
+}
+
+bool Renderer::IsCellHighlighted(const GameField& field, int x, int y) const {
+    
+    switch (display_mode_) {
+        case DisplayMode::kStandard:
+            return false;
+
+        case DisplayMode::kEnemies: {
+            const Robot* robot = field.GetRobotPtr(x, y);
+            return robot != nullptr && robot->GetType() == RobotType::kEnemy;
+        }
+
+        case DisplayMode::kImpassableCells:
+            return !field.IsPassable(x, y);
+
+        case DisplayMode::kStatusCells:
+            return field.HasCellStatuses(x, y);
+    }
+
+    return false;
+}
+
+void Renderer::SetDisplayMode(DisplayMode mode) {
+    display_mode_ = mode;
+}
