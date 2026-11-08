@@ -293,7 +293,7 @@ void Renderer::Render(const GameField& field, GameWindow& window, GameState game
             ability_text_value = "Choose starting ability:\n" "[H] Heal   " "[T] Teleport   "
                                     "[A] Area attack   " "[R] Long-range attack";
         } else if (game_state == GameState::kChoosingDisplayMode) {
-            ability_text_value = "Display mode:\n" "[1] Standard   [2] Enemies[3]   Impassable cells   [4] Status cells";
+            ability_text_value = "Display mode:\n" "[1] Standard   [2] Enemies   [3] Impassable cells   [4] Status cells";
         } else {
             ability_text_value = "Abilities:\n";
 
