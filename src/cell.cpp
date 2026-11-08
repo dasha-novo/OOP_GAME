@@ -28,5 +28,21 @@ void Cell::RemoveRobot() {
 }
 
 int Cell::GetSlowdown() const {
-    return slowdown_;
+  return slowdown_;
+}
+
+void Cell::AddStatus(StatusType type, int amount) {
+    if (amount <= 0) return;
+    statuses_.push_back(CellStatus{type, amount});
+}
+
+bool Cell::TakeRandomStatus(std::mt19937& rng, CellStatus& result) {
+    if (statuses_.empty()) return false;
+
+    std::uniform_int_distribution<int> distribution(0, statuses_.size() - 1);
+    int index = distribution(rng);
+    result = statuses_[index];
+    statuses_.erase(statuses_.begin() + index);
+
+    return true;
 }

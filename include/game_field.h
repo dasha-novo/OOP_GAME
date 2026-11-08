@@ -9,7 +9,8 @@
 enum class MoveResult {
     kMoved,
     kInteracted,
-    kFailed
+    kFailed,
+    kBlockedByStatus
 };
 
 class GameField {
@@ -24,6 +25,10 @@ class GameField {
     bool PlaceRobotOnFreeCell(Robot& robot);
     const Robot* GetRobotPtr(int x, int y) const;
     int GetSlowdown(int x, int y) const;
+    bool TeleportRobot(Robot& robot, int goal_x, int goal_y, int max_radius);
+    bool GetRobotPosition(const Robot& robot, int& x, int& y) const;
+    Robot* GetRobotForChange(int x, int y);
+    bool RemoveDeadRobot(int x, int y);
 
     static constexpr int kMinFieldSize = 3;
     static constexpr int kMaxFieldSize = 100;
@@ -38,6 +43,7 @@ class GameField {
     void GenerateCells();
     MoveResult MoveRobotOneCell(Robot& robot, int delta_x, int delta_y);
     bool FindRobotPosition(const Robot& robot, int& x, int& y) const;
+    void ApplyCellStatus(Robot& robot, Cell& cell);
   };
 
 #endif
