@@ -43,10 +43,6 @@ void AreaAttackAbility::Upgrade() {
     radius_area_ += kRadiusAreaAttack;
 }
 
-const char* AreaAttackAbility::GetNameAbility() const {
-    return "AreaAttack";
-}
-
 AbilityType AreaAttackAbility::GetType() const {
     return AbilityType::kAreaAttack;
 }

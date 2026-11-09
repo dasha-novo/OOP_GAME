@@ -30,10 +30,6 @@ void HealAbility::Upgrade() {
     heal_amount_ += kAbilityUpgradeStep;
 }
 
-const char* HealAbility::GetNameAbility() const {
-    return "Heal";
-}
-
 AbilityType HealAbility::GetType() const {
     return AbilityType::kHeal;
 }

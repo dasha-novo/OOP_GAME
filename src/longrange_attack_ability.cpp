@@ -40,10 +40,6 @@ void LongrangeAttackAbility::Upgrade() {
     damage_ += kAbilityUpgradeStep;
 }
 
-const char* LongrangeAttackAbility::GetNameAbility() const {
-    return "Longrange Attack";
-}
-
 AbilityType LongrangeAttackAbility::GetType() const {
     return AbilityType::kLongrangeAttack;
 }

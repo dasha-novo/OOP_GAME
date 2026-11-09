@@ -10,7 +10,6 @@ class AreaAttackAbility : public Ability {
   bool UseAbility(Robot& robot, GameField& field, int goal_x, int goal_y) override;
   int GetEnergyCost() const override;
   void Upgrade() override;
-  const char* GetNameAbility() const override;
   AbilityType GetType() const override;
 
   private:

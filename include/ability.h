@@ -13,7 +13,6 @@ class Ability {
   virtual bool UseAbility(Robot& robot, GameField& field, int goal_x, int goal_y) = 0;
   virtual int GetEnergyCost() const = 0;
   virtual void Upgrade() = 0;
-  virtual const char* GetNameAbility() const = 0;
   virtual AbilityType GetType() const = 0;
 };
 

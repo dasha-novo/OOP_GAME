@@ -25,10 +25,6 @@ void TeleportAbility::Upgrade() {
     if (energy_cost_ <= 0) energy_cost_ = 1;
 }
 
-const char* TeleportAbility::GetNameAbility() const {
-    return "Teleport";
-}
-
 AbilityType TeleportAbility::GetType() const {
     return AbilityType::kTeleport;
 }
